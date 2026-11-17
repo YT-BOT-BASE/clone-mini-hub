@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-night text-slate-200 font-body antialiased;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(139, 92, 246, 0.18), transparent),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(34, 211, 238, 0.12), transparent),
+    radial-gradient(ellipse 50% 60% at 50% 120%, rgba(139, 92, 246, 0.15), transparent);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+::selection { background: rgba(139, 92, 246, 0.5); color: #fff; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #0e0821; }
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #8b5cf6, #22d3ee); border-radius: 8px; }
+
+.glass {
+  @apply bg-card/60 backdrop-blur-xl border border-white/10 rounded-2xl;
+}
+
+.glow-ring {
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.35), 0 0 32px rgba(139, 92, 246, 0.25);
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-white transition-all duration-300;
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 50%, #22d3ee 100%);
+  background-size: 160% 160%;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+}
+.btn-primary:hover {
+  background-position: 100% 100%;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(139, 92, 246, 0.55);
+}
+
+.btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-semibold text-glow border border-white/15 transition-all duration-300 hover:border-glow/60 hover:bg-white/5;
+}
+
+.input {
+  @apply w-full rounded-xl bg-white/5 border border-white/10 px-4 py-3 text-slate-100 placeholder-slate-500 outline-none transition-all duration-300 focus:border-glow/70 focus:shadow-neon;
+}
+
+.table-row { @apply border-b border-white/5 hover:bg-white/5 transition-colors; }
+
+.gradient-text {
+  background: linear-gradient(92deg, #a78bfa 0%, #22d3ee 55%, #a78bfa 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(139, 92, 246, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.07) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
