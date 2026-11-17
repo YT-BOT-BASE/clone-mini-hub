@@ -3,7 +3,15 @@ const ApiEndpoint = require('../models/ApiEndpoint');
 const PlatformSettings = require('../models/PlatformSettings');
 
 const ENDPOINTS = [
-  { key: 'download.info', name: 'Download Media Info', category: 'DOWNLOAD', path: '/api/download/info', method: 'GET', coinCost: 2, description: 'Video/audio info, qualities, download URL for YouTube, TikTok, Facebook, Instagram, Pinterest, Twitter/X, MediaFire, Google Drive' },
+  { key: 'download.info', name: 'Download API (All-in-One)', category: 'DOWNLOAD', path: '/api/download/all', method: 'GET', coinCost: 2, description: 'Auto-detect any supported link — YouTube, TikTok, Facebook, Instagram, Pinterest, Twitter/X, MediaFire, Google Drive' },
+  { key: 'download.youtube', name: 'YouTube Downloader', category: 'DOWNLOAD', path: '/api/download/youtube', method: 'GET', coinCost: 2, description: 'YouTube video/audio info — title, duration, thumbnail, 360p/480p/720p/1080p qualities & download links' },
+  { key: 'download.tiktok', name: 'TikTok Downloader', category: 'DOWNLOAD', path: '/api/download/tiktok', method: 'GET', coinCost: 2, description: 'TikTok video info — no watermark link, thumbnail, title & duration' },
+  { key: 'download.facebook', name: 'Facebook Downloader', category: 'DOWNLOAD', path: '/api/download/facebook', method: 'GET', coinCost: 2, description: 'Facebook video info — qualities, thumbnail, title & download links' },
+  { key: 'download.instagram', name: 'Instagram Downloader', category: 'DOWNLOAD', path: '/api/download/instagram', method: 'GET', coinCost: 2, description: 'Instagram reels/posts — video info, thumbnail & download links' },
+  { key: 'download.pinterest', name: 'Pinterest Downloader', category: 'DOWNLOAD', path: '/api/download/pinterest', method: 'GET', coinCost: 2, description: 'Pinterest video/image info & download links' },
+  { key: 'download.twitter', name: 'Twitter / X Downloader', category: 'DOWNLOAD', path: '/api/download/twitter', method: 'GET', coinCost: 2, description: 'Twitter/X video info — qualities, thumbnail & download links' },
+  { key: 'download.mediafire', name: 'MediaFire Downloader', category: 'DOWNLOAD', path: '/api/download/mediafire', method: 'GET', coinCost: 2, description: 'MediaFire direct file download link info' },
+  { key: 'download.drive', name: 'Google Drive Downloader', category: 'DOWNLOAD', path: '/api/download/drive', method: 'GET', coinCost: 2, description: 'Google Drive direct file download link info' },
   { key: 'movie.search', name: 'Movie Search', category: 'MOVIE', path: '/api/movie/search', method: 'GET', coinCost: 1, description: 'Search movies & TV series via TMDB' },
   { key: 'movie.details', name: 'Movie Details', category: 'MOVIE', path: '/api/movie/:type/:id', method: 'GET', coinCost: 1, description: 'Posters, trailers, cast, ratings, genres, release dates, Sinhala subtitle links' },
   { key: 'movie.trending', name: 'Trending', category: 'MOVIE', path: '/api/movie/trending', method: 'GET', coinCost: 1, description: 'Trending movies & TV this week' },
@@ -28,11 +36,12 @@ const ENDPOINTS = [
 ];
 
 async function seedIfEmpty() {
-  const endpointCount = await ApiEndpoint.countDocuments();
-  if (endpointCount === 0) {
-    await ApiEndpoint.insertMany(ENDPOINTS);
-    console.log('[SEED] API endpoints seeded:', ENDPOINTS.length);
+  // Upsert: adds any NEW endpoints to existing databases without overwriting admin edits
+  for (const e of ENDPOINTS) {
+    await ApiEndpoint.updateOne({ key: e.key }, { $setOnInsert: e }, { upsert: true });
   }
+  const count = await ApiEndpoint.countDocuments();
+  console.log(`[SEED] API endpoints ready: ${count}`);
 
   const adminEmail = (process.env.ADMIN_EMAIL || 'admin@cloneminHub.lk').toLowerCase();
   const adminExists = await User.findOne({ role: 'ADMIN' });

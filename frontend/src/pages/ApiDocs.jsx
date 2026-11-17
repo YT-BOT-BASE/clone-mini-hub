@@ -3,11 +3,31 @@ import { Link } from 'react-router-dom';
 import api from '../lib/api';
 import Loader from '../components/Loader';
 
+const DOWNLOAD_RESPONSE = `{\n  "success": true,\n  "data": {\n    "platform": "YouTube",\n    "title": "Video Title",\n    "duration": "3:45",\n    "thumbnail": "https://...",\n    "qualities": [\n      { "quality": "360p", "url": "https://...", "size": "12 MB" },\n      { "quality": "720p", "url": "https://...", "size": "24 MB" },\n      { "quality": "1080p", "url": "https://...", "size": "48 MB" }\n    ]\n  }\n}`;
+
+const mkDownloadDoc = (name, slug) => ({
+  name, method: 'GET', path: `/api/download/${slug}`,
+  params: [
+    { name: 'url', type: 'string', required: true, desc: `${name} link` },
+    { name: 'quality', type: 'string', required: false, desc: 'Preferred quality: 360 / 480 / 720 / 1080' },
+  ],
+  example: `curl -G "https://your-domain/api/download/${slug}" \\\n  -H "X-API-Key: cmh_live_xxxxxxxx" \\\n  --data-urlencode "url=https://${slug === 'drive' ? 'drive.google.com/file/d/xxxxx' : slug === 'twitter' ? 'x.com/user/status/123' : slug + '.com/xxxxxx'}"`,
+  response: DOWNLOAD_RESPONSE,
+});
+
 const DOCS = {
   DOWNLOAD: [
-    { name: 'Download Media Info', method: 'GET', path: '/api/download/info', params: [{ name: 'url', type: 'string', required: true, desc: 'Media URL (YouTube, TikTok, Facebook, Instagram, Pinterest, Twitter/X, MediaFire, Google Drive)' }, { name: 'quality', type: 'string', required: false, desc: 'Preferred quality: 360 / 480 / 720 / 1080' }],
-      example: `curl -G "https://your-domain/api/download/info" \\\n  -H "X-API-Key: cmh_live_xxxxxxxx" \\\n  --data-urlencode "url=https://youtu.be/xxxxxx"`,
-      response: `{\n  "success": true,\n  "data": {\n    "source": "youtube",\n    "title": "Video Title",\n    "duration": "3:45",\n    "thumbnail": "https://...",\n    "qualities": [\n      { "quality": "720p", "url": "https://...", "size": "24 MB" }\n    ]\n  }\n}` },
+    { name: 'Download API — All-in-One (auto detect)', method: 'GET', path: '/api/download/all', params: [{ name: 'url', type: 'string', required: true, desc: 'Any supported link: YouTube, TikTok, Facebook, Instagram, Pinterest, Twitter/X, MediaFire, Google Drive' }, { name: 'quality', type: 'string', required: false, desc: 'Preferred quality: 360 / 480 / 720 / 1080' }],
+      example: `curl -G "https://your-domain/api/download/all" \\\n  -H "X-API-Key: cmh_live_xxxxxxxx" \\\n  --data-urlencode "url=https://youtu.be/xxxxxx"`,
+      response: DOWNLOAD_RESPONSE },
+    mkDownloadDoc('YouTube Downloader', 'youtube'),
+    mkDownloadDoc('TikTok Downloader', 'tiktok'),
+    mkDownloadDoc('Facebook Downloader', 'facebook'),
+    mkDownloadDoc('Instagram Downloader', 'instagram'),
+    mkDownloadDoc('Pinterest Downloader', 'pinterest'),
+    mkDownloadDoc('Twitter / X Downloader', 'twitter'),
+    mkDownloadDoc('MediaFire Downloader', 'mediafire'),
+    mkDownloadDoc('Google Drive Downloader', 'drive'),
   ],
   MOVIE: [
     { name: 'Movie Search', method: 'GET', path: '/api/movie/search', params: [{ name: 'q', type: 'string', required: true, desc: 'Search query' }, { name: 'page', type: 'number', required: false, desc: 'Page number' }],
@@ -89,10 +109,15 @@ export default function ApiDocs() {
 
       {/* Detailed docs */}
       {Object.entries(DOCS).map(([category, items]) => (
-        <div key={category} className="mt-10">
-          <h2 className="font-display text-xl font-bold text-white">
-            {category === 'DOWNLOAD' ? '📥 Download API' : category === 'MOVIE' ? '🎬 Movie API' : category === 'AI' ? '🤖 AI API' : '🛠️ Utility API'}
-          </h2>
+          <div key={category} className="mt-10">
+            <h2 className="font-display text-xl font-bold text-white">
+              {category === 'DOWNLOAD' ? '📥 Download APIs — All Platforms' : category === 'MOVIE' ? '🎬 Movie API' : category === 'AI' ? '🤖 AI API' : '🛠️ Tools API'}
+            </h2>
+            {category === 'DOWNLOAD' && (
+              <p className="mt-2 text-sm text-slate-400">
+                Each platform has its own endpoint. Tip: use <code className="rounded bg-white/10 px-1.5 py-0.5 text-electric">/api/download/all</code> to auto-detect any link.
+              </p>
+            )}
           <div className="mt-4 space-y-4">
             {items.map((doc) => {
               const isOpen = open === doc.name;
